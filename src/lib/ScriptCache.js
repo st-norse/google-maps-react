@@ -122,6 +122,19 @@ export const ScriptCache = (function(global) {
         Object.keys(scripts).forEach(function(key) {
             const script = scripts[key];
 
+            if (window._scriptMap.has(key)) {
+                const currentLanguage = new URL(window._scriptMap.get(key).tag.attributes.src.value).searchParams.get('language');
+                const newLanguage = new URL(script).searchParams.get('language');
+
+                if (newLanguage !== currentLanguage) {
+                    if (typeof document !== 'undefined') {
+                        document.querySelector('script[src="' + window._scriptMap.get(key).tag.attributes.src.value + '"').remove();
+                    }
+
+                    window._scriptMap.delete(key);
+                }
+            }
+
             const tag = window._scriptMap.has(key) ?
                         window._scriptMap.get(key).tag :
                         Cache._scriptTag(key, script);
